@@ -6,6 +6,7 @@ from time import sleep
 from notion.client import NotionClient
 
 CONTROL_PANEL_URL = 'https://www.notion.so/d5e3513e606a4861ac5565c0229d115f?v=b1f178b8e1f543c28b52d31a0c1e07ec'
+STATUS_BLOCK_URL = 'https://www.notion.so/Control-Panel-1afac2d0450b4908a4b895740d2a1803#c0608be98ed34fb682b909af76da9be1'
 ALL_INGREDIENTS_URL = 'https://www.notion.so/39444bd43f9547fbab65d928fd2e1c31?v=3060a61f614d40d78232298cb2468465'
 RESTOCK_URL = 'https://www.notion.so/39444bd43f9547fbab65d928fd2e1c31?v=56b9c57f15644b58a8a541d60575d644'
 
@@ -47,6 +48,7 @@ def restock():
             row.needs_purchasing = False
 
 
+@button_callback
 def sync_icons():
     ingredients = client.get_collection_view(ALL_INGREDIENTS_URL)
     for row in ingredients.collection.get_rows():
@@ -55,13 +57,27 @@ def sync_icons():
 
 
 def main():
-    restock_button = control_panel.collection.get_rows(search="Restock Items")[0]
+    status_block = client.get_block(STATUS_BLOCK_URL)
+    status_block.title = "Server status: Active"
+
+    for row in control_panel.collection.get_rows():
+        if row.name == "Restock Items":
+            restock_button = row
+        elif row.name == "Sync Icons":
+            sync_button = row
     restock_button.add_callback(restock)
+    sync_button.add_callback(sync_icons)
 
     print("Listening...")
-    while True:
-        sleep(0.5)
-        restock_button.refresh()
+    try:
+        while True:
+            sleep(0.5)
+            restock_button.refresh()
+            sync_button.refresh()
+    except KeyboardInterrupt:
+        print("Exiting...")
+
+    status_block.title = "Server status: Inactive"
 
 
 if __name__ == '__main__':
