@@ -39,6 +39,7 @@ def button_callback(f):
 
 @button_callback
 def restock():
+    print("Restocking...")
     to_restock = client.get_collection_view(RESTOCK_URL)
     for row in to_restock.collection.get_rows():
         if row.done:
@@ -46,14 +47,17 @@ def restock():
             row.done = False
         if row.needs_purchasing:
             row.needs_purchasing = False
+    print("Restocking complete.")
 
 
 @button_callback
 def sync_icons():
+    print("Syncing icons...")
     ingredients = client.get_collection_view(ALL_INGREDIENTS_URL)
     for row in ingredients.collection.get_rows():
         if row.emoji != row.icon:
             row.emoji = row.icon
+    print("Icons synced.")
 
 
 def main():
