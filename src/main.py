@@ -23,8 +23,8 @@ def restock():
         if row.done:
             row.stock = "Full"
             row.done = False
-        if row.needs_purchasing:
-            row.needs_purchasing = False
+            if row.needs_purchasing:
+                row.needs_purchasing = False
 
 
 def sync_icons():
