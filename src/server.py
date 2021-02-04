@@ -13,7 +13,7 @@ async def handshake(websocket, path):
     print("Connection terminated.")
 
 
-start_server = websockets.serve(handshake, "localhost", PORT)
+start_server = websockets.serve(handshake, "0.0.0.0", PORT)
 
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()

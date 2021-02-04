@@ -1,5 +1,5 @@
 function handshake() {
-    const socket = new WebSocket('ws://localhost:61453');
+    const socket = new WebSocket('ws://10.108.99.175:61453');
 
     socket.addEventListener('open', function (event) {
         socket.send('client');
