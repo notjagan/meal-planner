@@ -38,18 +38,11 @@ def sync_icons():
 
 def archive_schedule():
     schedule = client.get_collection_view(SCHEDULE_URL)
-    this_week = {}
-    next_week = {}
-    for row in schedule.collection.get_rows():
-        if row.this_week:
-            this_week[row.day] = row
-        elif row.next_week:
-            next_week[row.day - 7] = row
-
     weekday = datetime.today().weekday() + 1 % 7
-    for index, current in this_week.items():
-        ahead = next_week[index]
-
+    for current in schedule.collection.get_rows():
+        if not current.this_week:
+            continue
+        
         delta = timedelta(days=current.day - weekday)
         date = datetime.today() + delta
         archive = schedule.collection.add_row()
@@ -59,6 +52,19 @@ def archive_schedule():
         archive.snack = current.snack
         archive.dinner = current.dinner
 
+
+def transfer_schedule():
+    schedule = client.get_collection_view(SCHEDULE_URL)
+    this_week = {}
+    next_week = {}
+    for row in schedule.collection.get_rows():
+        if row.this_week:
+            this_week[row.day] = row
+        elif row.next_week:
+            next_week[row.day - 7] = row
+    
+    for index, current in this_week.items():
+        ahead = next_week[index]
         current.lunch = ahead.lunch
         current.snack = ahead.snack
         current.dinner = ahead.dinner
@@ -72,6 +78,7 @@ def main():
     parser.add_argument('--restock', action='store_true')
     parser.add_argument('--icons', action='store_true')
     parser.add_argument('--archive', action='store_true')
+    parser.add_argument('--transfer', action='store_true')
     args = parser.parse_args()
 
     if args.restock:
@@ -86,6 +93,10 @@ def main():
         print("Archiving schedule...")
         archive_schedule()
         print("Schedule archived.")
+    if args.transfer:
+        print("Transferring schedule...")
+        transfer_schedule()
+        print("Schedule transferred.")
 
 
 if __name__ == '__main__':
